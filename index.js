@@ -3,18 +3,36 @@
 var mongoose = require('mongoose');
 
 var locales=['en','ru'];
+var locale='en';
 
 (function(){
     var ma = mongoose.Schema.prototype.add;
-    var addI18n=function(obj){
+    var addI18n=function(schema,obj){
+        //console.log('====');
+
+        //console.log(obj);
+        //console.trace();
         var keys = Object.keys(obj);
+
+        if (keys.length==1 && keys=='_id') return obj;
+
         var ret={};
 
         for (var i = 0; i < keys.length; ++i) {
             var key = keys[i];
             var val = obj[key];
 
+            if (key==='type'){
+                ret[key]=val;
+                continue;
+            }
+
             if (typeof val != "object") {
+                ret[key]=val;
+                continue;
+            };
+
+            if (val instanceof Array) {
                 ret[key]=val;
                 continue;
             };
@@ -24,8 +42,8 @@ var locales=['en','ru'];
             for (var ii=0; ii<kkeys.length;++ii){
                 var kkey=kkeys[ii];
                 var vval=val[kkey];
-                if (typeof vval=="object"){
-                    val[kkey]=addI18n(vval)
+                if (typeof vval==="object"){
+                    val[kkey]=addI18n(schema,vval)
                 }else{
                     if (vval && kkey=="localize"){
                         localize=true;
@@ -36,9 +54,20 @@ var locales=['en','ru'];
                 delete(val.localize);
                 var nval={};
                 for (var j=0;j<locales.length;j++){
-                    nval[locales[j]]=val;// TODO: let's try to live without copy JSON.parse(JSON.stringify(va));
+                    nval[locales[j]]=val;// Note: must live without copy JSON.parse(JSON.stringify(va)) because of [Function];
+                    //nval[locales[j]]=JSON.parse(JSON.stringify(val));
                 }
+                //ret['_localized_'+key]=nval;
                 ret[key]=nval;
+                schema.virtual('localized.'+key)
+                    .get(function(value,virtual){
+                        var n=virtual.path.substring(10);
+                        return this[n][locale];
+                    })/*
+                    .set(function(value,virtual){
+                        var n=virtual.path.substring(10);
+                        this[n]=value;
+                    });*/
             }else{
                 ret[key]=val;
             }
@@ -46,15 +75,28 @@ var locales=['en','ru'];
         return ret;
     }
     mongoose.Schema.prototype.add = function add (obj, prefix) {
-        ma.call(this,addI18n(obj),prefix);
+        //console.log({in:obj})
+        //console.trace();
+        var oobj=addI18n(this,obj);
+        //console.log({out:oobj})
+        ma.call(this,oobj,prefix);
     };
 })();
 
 var localize=module.exports = function(opt){
-    return {
-
-    }
+    if (opt.locales) locales=opt.locales;
+    if (opt.locale) locale=opt.locale;
+    return {}
+}
+localize.locale=function(){
+    return locale;
+}
+localize.setLocale=function(sLocale){
+    locale=sLocale;
 }
 localize.locales=function(){
     return locales;
+}
+localize.setLocales=function(sLocales){
+    locales=sLocales;
 }
