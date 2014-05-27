@@ -1,17 +1,13 @@
 'use strict';
 
-var mongoose = require('mongoose');
+//var mongoose = require('mongoose');
 
 var locales=['en','ru'];
 var locale='en';
 
-(function(){
+var prototype_mongoose=function(mongoose){
     var ma = mongoose.Schema.prototype.add;
     var addI18n=function(schema,obj){
-        //console.log('====');
-
-        //console.log(obj);
-        //console.trace();
         var keys = Object.keys(obj);
 
         if (keys.length==1 && keys=='_id') return obj;
@@ -74,18 +70,19 @@ var locale='en';
         };
         return ret;
     }
+
     mongoose.Schema.prototype.add = function add (obj, prefix) {
-        //console.log({in:obj})
-        //console.trace();
         var oobj=addI18n(this,obj);
-        //console.log({out:oobj})
         ma.call(this,oobj,prefix);
     };
-})();
+};
 
-var localize=module.exports = function(opt){
-    if (opt.locales) locales=opt.locales;
-    if (opt.locale) locale=opt.locale;
+var localize=module.exports = function(mongoose,opt){
+    if (opt){
+        if (opt.locales) locales=opt.locales;
+        if (opt.locale) locale=opt.locale;
+    }
+    prototype_mongoose(mongoose);
     return {}
 }
 localize.locale=function(){
@@ -100,3 +97,4 @@ localize.locales=function(){
 localize.setLocales=function(sLocales){
     locales=sLocales;
 }
+

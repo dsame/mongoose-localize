@@ -4,14 +4,11 @@
   },
   "name": "mongoose-localize",
   "description": "A module to conver mongoose model property to set of localized properties.",
-  "version": "0.0.3",
+  "version": "0.0.6",
   "repository": {
     "url": "git://github.com/dsame/mongoose-localize.git"
   },
   "main": "./index",
-  "dependencies": {
-    "mongoose": ">=3.8.8"
-  },
   "engines": {
     "node": "*"
   },
