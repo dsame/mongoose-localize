@@ -89,7 +89,7 @@ setLocale:function(sLocale){
 locales:function(){
     return locales;
 },
-setLocales=function(sLocales){
+setLocales:function(sLocales){
     locales=sLocales;
 }
 }
