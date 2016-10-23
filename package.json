@@ -3,7 +3,7 @@
   "contributors": ["Sergey Dolin <e@sergey.email>"],
   "name": "mongoose-localize",
   "description": "A module to conver mongoose model property to set of localized properties.",
-  "version": "0.0.7",
+  "version": "0.1.0",
   "keywords": ["mongoose","localize","l10n","i19n"],
   "license": "ISC",
   "repository": {
