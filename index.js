@@ -1,11 +1,11 @@
 'use strict';
 
-//var mongoose = require('mongoose');
+var mongoose = require('mongoose');
 
 var locales=['en','ru'];
 var locale='en';
 
-var prototype_mongoose=function(mongoose){
+var prototype_mongoose=function(){
     var ma = mongoose.Schema.prototype.add;
     var addI18n=function(schema,obj){
         var keys = Object.keys(obj);
@@ -77,24 +77,19 @@ var prototype_mongoose=function(mongoose){
     };
 };
 
-var localize=module.exports = function(mongoose,opt){
-    if (opt){
-        if (opt.locales) locales=opt.locales;
-        if (opt.locale) locale=opt.locale;
-    }
-    prototype_mongoose(mongoose);
-    return {}
-}
-localize.locale=function(){
+prototype_mongoose();
+
+module.exports = {
+locale:function(){
     return locale;
-}
-localize.setLocale=function(sLocale){
+},
+setLocale:function(sLocale){
     locale=sLocale;
-}
-localize.locales=function(){
+},
+locales:function(){
     return locales;
-}
-localize.setLocales=function(sLocales){
+},
+setLocales=function(sLocales){
     locales=sLocales;
 }
-
+}
