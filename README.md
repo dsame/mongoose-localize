@@ -18,6 +18,13 @@ import mongoose_localize from 'mongoose-localize';
 mongoose_localize.localize(mongoose,[currentLocale[,locales]]);
 ```
 
+or with another (better) ES6 syntax
+```javascript
+import mongoose from 'mongoose';
+import {localize as mongoose_localize} from 'mongoose-localize';
+mongoose_localize(mongoose,'ru',['en','ru']);
+```
+
 ...every attribute of mongoose Scheme containing  "localize" attribute set to true...
 
 ```javascript
