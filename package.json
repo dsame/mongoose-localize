@@ -4,8 +4,8 @@
     "Sergey Dolin <e@sergey.email>"
   ],
   "name": "mongoose-localize",
-  "description": "A module to conver mongoose model property to set of localized properties.",
-  "version": "1.0.5",
+  "description": "A module to convert mongoose model property to set of localized properties.",
+  "version": "1.0.6",
   "keywords": [
     "mongoose",
     "localize",
