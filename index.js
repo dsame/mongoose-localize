@@ -11,8 +11,8 @@ function currentLocale(){
 
 var prototype_mongoose=function(){
 	var ma = mongoose.Schema.prototype.add;
-	if (mongoose.Schema.protection.localized) return;
-	mongoose.Schema.protection.localized=()=>true;
+	if (mongoose.Schema.prototype.localized) return;
+	mongoose.Schema.prototype.localized=()=>true;
 
 	//traverse over all fields and modify the objects having "localize" attribute
 	var addI18n=function(schema,obj,prefix){
@@ -99,7 +99,7 @@ module.exports = {
 		locales=sLocales;
 	},
 	activate:prototype_mongoose,
-	active:()=>!!mongoose.Schema.protection.localized
+	active:()=>!!mongoose.Schema.prototype.localized
 }
 
 
