@@ -1,18 +1,51 @@
 'use strict';
 
-var mongoose = require('mongoose');
+//var mongoose = require('mongoose');
 
 var locales=['en','ru'];
 var locale=locales[0];
+
+function	setLocales(sLocales){
+	locales=sLocales;
+}
 
 function currentLocale(){
 	return locale?locale:((locales.length>0)?locales[0]:undefined);
 }
 
-var prototype_mongoose=function(){
-	var ma = mongoose.Schema.prototype.add;
-	if (mongoose.Schema.prototype.localized) return;
-	mongoose.Schema.prototype.localized=()=>true;
+function	setCurrentLocale(sLocale){
+	locale=sLocale;
+}
+
+function isLocalized(){
+	return true;
+}
+
+var prototype_mongoose=function(mongoose_instance,_currentLocale,_locales){
+
+	function localizedAdd(obj, prefix) {
+		//console.log({in:obj});
+		var oobj=addI18n(this,obj,prefix);
+		//console.log({out:oobj});
+		ma.call(this,oobj,prefix);
+	};
+
+
+	if (_currentLocale) setCurrentLocale(_currentLocale);
+	if (_locales) setLocales(_locales);
+	if (!mongoose_instance)
+		mongoose_instance=require('mongoose');
+
+	//if (mongoose_instance.Schema.prototype.add === localizedAdd){
+	if (mongoose_instance.Schema.prototype.localized === isLocalized){
+		//console.log('WARN: mongoose already has been localized');
+		return;
+	}else{
+		//console.log('INFO: mongoose will be localized');
+	};
+
+	var ma = mongoose_instance.Schema.prototype.add;
+	if (mongoose_instance.Schema.prototype.localized) return;
 
 	//traverse over all fields and modify the objects having "localize" attribute
 	var addI18n=function(schema,obj,prefix){
@@ -50,21 +83,21 @@ var prototype_mongoose=function(){
 				if ((locales instanceof Array) && locales.length>0){
 					var nfield={};
 					for (var li=0;li<locales.length;li++){
-					//TODO: remove ES6
+						//TODO: remove ES6
 						nfield[locales[li]]=Object.assign({},field);
 						delete(nfield[locales[li]].localize);
 					}
 					ret[key]=nfield;
 					var vpath=(prefix?prefix:'')+key;
 					schema.virtual(vpath+'._')
-					.get(function(){
-						var l=currentLocale();
-						if (l) return this.get(vpath+'.'+l);
-						return undefined;
-					}).set(function(value,virtual){
-						if (currentLocale(value))
-							this.set((prefix?prefix:'')+key+'.'+l,value);
-					});
+						.get(function(){
+							var l=currentLocale();
+							if (l) return this.get(vpath+'.'+l);
+							return undefined;
+						}).set(function(value,virtual){
+							if (currentLocale(value))
+								this.set((prefix?prefix:'')+key+'.'+l,value);
+						});
 				}else{
 					ret[key]=Object.assign({},field);
 					delete(ret[key].localize);
@@ -76,30 +109,23 @@ var prototype_mongoose=function(){
 		return ret;
 	}
 
-	mongoose.Schema.prototype.add = function add (obj, prefix) {
-		console.log({in:obj});
-		var oobj=addI18n(this,obj,prefix);
-		console.log({out:oobj});
-		ma.call(this,oobj,prefix);
-	};
+	mongoose_instance.Schema.prototype.add = localizedAdd;
+	mongoose_instance.Schema.prototype.localized=isLocalized;
 };
 
-prototype_mongoose();
+prototype_mongoose()
 
 
 module.exports = {
 	currentLocale:currentLocale,
-	setCurrentLocale:function(sLocale){
-		locale=sLocale;
-	},
+	setCurrentLocale:setCurrentLocale,
 	locales:function(){
 		return locales;
 	},
-	setLocales:function(sLocales){
-		locales=sLocales;
-	},
-	activate:prototype_mongoose,
-	active:()=>!!mongoose.Schema.prototype.localized
+	setLocales:setLocales,
+	localize:prototype_mongoose,
+	localized:function(){mongoose.Schema.prototype.localized==isLocalized}
 }
+
 
 

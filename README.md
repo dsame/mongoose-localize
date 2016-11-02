@@ -3,11 +3,19 @@ mongoose-localize
 
 A nodejs module to convert mongoose model property to set of localized properties.
 
-As soon as mongoose_localize has been required...
+As soon as mongoose_localize has been required with CommonJS ...
 
 ```javascript
+var
+	mongoose = require('mongoose'),
+	localize = require('mongoose-localize');
+```
+
+or imported and initialized with ES6 syntax
+```javascript
+import mongoose from 'mongoose';
 import mongoose_localize from 'mongoose-localize';
-mongoose_localize.setLocales(['locale1','locale2',...,'localeN']);
+mongoose_localize.localize(mongoose,[currentLocale[,locales]]);
 ```
 
 ...every attribute of mongoose Scheme containing  "localize" attribute set to true...
