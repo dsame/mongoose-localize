@@ -31,15 +31,26 @@ approverSchema = new mongoose.Schema({
     localeN: {type:String},
 	}
 });
-approverSchema.virtual('localized.name').get(function () {
+approverSchema.virtual('name._').get(function () {
 // return name in the current locale
   ...
-});
+}).set(function (v) {
+// set name of the current locale to v
+  ...
+})
+;
 ```
-The "localize" attribute will be removed from source Scheme. It's nor a bug neither a feature, it is "by design".  
 
 While the module must be required and setLocales must be called before the first Schema added the current locale may be set and changed in any moment. 
 
 ```javascript
-mongoose_localize.setLocale('locale2');
+mongoose_localize.setCurrenLocale('locale2');
 ```
+
+Locales and current locales may be retrieved with 
+
+```javascript
+mongoose_localize.locales();
+mongoose_localize.currentLocale();
+```
+

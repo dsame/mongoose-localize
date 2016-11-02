@@ -3,93 +3,103 @@
 var mongoose = require('mongoose');
 
 var locales=['en','ru'];
-var locale='en';
+var locale=locales[0];
+
+function currentLocale(){
+	return locale?locale:((locales.length>0)?locales[0]:undefined);
+}
 
 var prototype_mongoose=function(){
-    var ma = mongoose.Schema.prototype.add;
-    var addI18n=function(schema,obj){
-        var keys = Object.keys(obj);
+	var ma = mongoose.Schema.prototype.add;
+	if (mongoose.Schema.protection.localized) return;
+	mongoose.Schema.protection.localized=()=>true;
 
-        if (keys.length==1 && keys=='_id') return obj;
+	//traverse over all fields and modify the objects having "localize" attribute
+	var addI18n=function(schema,obj,prefix){
+		var keys = Object.keys(obj);
 
-        var ret={};
+		if (keys.length==1 && keys=='_id') return obj;
 
-        for (var i = 0; i < keys.length; ++i) {
-            var key = keys[i];
-            var val = obj[key];
+		var ret={};
 
-            if (key==='type'){
-                ret[key]=val;
-                continue;
-            }
+		for (var i = 0; i < keys.length; i++) {
+			//keys of fields
+			var key = keys[i];
+			var field = obj[key];
 
-            if (typeof val != "object") {
-                ret[key]=val;
-                continue;
-            };
+			if (key==='type'){
+				ret[key]=field;
+				continue;
+			}
 
-            if (val instanceof Array) {
-                ret[key]=val;
-                continue;
-            };
+			if (typeof field != "object") {
+				ret[key]=field;
+				continue;
+			};
 
-            var kkeys=Object.keys(val);
-            var localize=false;
-            for (var ii=0; ii<kkeys.length;++ii){
-                var kkey=kkeys[ii];
-                var vval=val[kkey];
-                if (typeof vval==="object"){
-                    val[kkey]=addI18n(schema,vval)
-                }else{
-                    if (vval && kkey=="localize"){
-                        localize=true;
-                    }
-                }
-            }
-            if (localize){
-                delete(val.localize);
-                var nval={};
-                for (var j=0;j<locales.length;j++){
-                    nval[locales[j]]=val;// Note: must live without copy JSON.parse(JSON.stringify(va)) because of [Function];
-                    //nval[locales[j]]=JSON.parse(JSON.stringify(val));
-                }
-                //ret['_localized_'+key]=nval;
-                ret[key]=nval;
-                schema.virtual('localized.'+key)
-                    .get(function(value,virtual){
-                        var n=virtual.path.substring(10);
-                        return this[n][locale];
-                    })/*
-                    .set(function(value,virtual){
-                        var n=virtual.path.substring(10);
-                        this[n]=value;
-                    });*/
-            }else{
-                ret[key]=val;
-            }
-        };
-        return ret;
-    }
+			if (field instanceof Array) {
+				//TODO: Should traverse? Than a problem with virtual name path
+				ret[key]=field.slice();
+				continue;
+			};
 
-    mongoose.Schema.prototype.add = function add (obj, prefix) {
-        var oobj=addI18n(this,obj);
-        ma.call(this,oobj,prefix);
-    };
+			//now we are sure "field" is an object
+			//field=addI18n(schema,field,path+(path==''?'':'.')+key);
+
+			if (field.localize){
+				if ((locales instanceof Array) && locales.length>0){
+					var nfield={};
+					for (var li=0;li<locales.length;li++){
+					//TODO: remove ES6
+						nfield[locales[li]]=Object.assign({},field);
+						delete(nfield[locales[li]].localize);
+					}
+					ret[key]=nfield;
+					var vpath=(prefix?prefix:'')+key;
+					schema.virtual(vpath+'._')
+					.get(function(){
+						var l=currentLocale();
+						if (l) return this.get(vpath+'.'+l);
+						return undefined;
+					}).set(function(value,virtual){
+						if (currentLocale(value))
+							this.set((prefix?prefix:'')+key+'.'+l,value);
+					});
+				}else{
+					ret[key]=Object.assign({},field);
+					delete(ret[key].localize);
+				}
+			}else{
+				ret[key]=field;
+			}
+		};
+		return ret;
+	}
+
+	mongoose.Schema.prototype.add = function add (obj, prefix) {
+		console.log({in:obj});
+		var oobj=addI18n(this,obj,prefix);
+		console.log({out:oobj});
+		ma.call(this,oobj,prefix);
+	};
 };
 
 prototype_mongoose();
 
+
 module.exports = {
-locale:function(){
-    return locale;
-},
-setLocale:function(sLocale){
-    locale=sLocale;
-},
-locales:function(){
-    return locales;
-},
-setLocales:function(sLocales){
-    locales=sLocales;
+	currentLocale:currentLocale,
+	setCurrentLocale:function(sLocale){
+		locale=sLocale;
+	},
+	locales:function(){
+		return locales;
+	},
+	setLocales:function(sLocales){
+		locales=sLocales;
+	},
+	activate:prototype_mongoose;
+	active:()=>!!mongoose.Schema.protection.localized
 }
-}
+
+

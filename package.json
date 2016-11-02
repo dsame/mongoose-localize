@@ -1,10 +1,18 @@
 {
   "author": "S4Y Solution <e@s4y.solutions>",
-  "contributors": ["Sergey Dolin <e@sergey.email>"],
+  "contributors": [
+    "Sergey Dolin <e@sergey.email>"
+  ],
   "name": "mongoose-localize",
   "description": "A module to conver mongoose model property to set of localized properties.",
-  "version": "0.1.0",
-  "keywords": ["mongoose","localize","l10n","i19n"],
+  "version": "1.0.1",
+  "keywords": [
+    "mongoose",
+    "localize",
+    "translation",
+    "l10n",
+    "i19n"
+  ],
   "license": "ISC",
   "repository": {
     "url": "git://github.com/dsame/mongoose-localize.git"
@@ -14,6 +22,13 @@
     "node": "*"
   },
   "scripts": {
-        "test": "mocha test"
-   }
+    "test": "mocha test"
+  },
+  "devDependencies": {
+    "chai": "3.5.0",
+    "mocha": "3.1.2"
+  },
+  "dependencies": {
+    "mongoose": "4.6.5"
+  }
 }
