@@ -98,7 +98,7 @@ module.exports = {
 	setLocales:function(sLocales){
 		locales=sLocales;
 	},
-	activate:prototype_mongoose;
+	activate:prototype_mongoose,
 	active:()=>!!mongoose.Schema.protection.localized
 }
 
