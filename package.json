@@ -5,7 +5,7 @@
   ],
   "name": "mongoose-localize",
   "description": "A module to conver mongoose model property to set of localized properties.",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "keywords": [
     "mongoose",
     "localize",
