@@ -111,7 +111,8 @@ var prototype_mongoose=function(mongoose_instance,_currentLocale,_locales){
 							if (l) return this.get(vpath+'.'+l);
 							return undefined;
 						}).set(function(value,virtual){
-							if (currentLocale(value))
+							var l=currentLocale();
+							if (l)
 								this.set((prefix?prefix:'')+key+'.'+l,value);
 						});
 				}else{
