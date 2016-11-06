@@ -14,7 +14,23 @@ function currentLocale(){
 }
 
 function	setCurrentLocale(sLocale){
-	locale=sLocale;
+	if (locales[sLocale])
+		locale=sLocale;
+	else{
+		let i=sLocale.indexOf('-');
+		if (i>0){
+			return setCurrentLocale(sLocale.substring(0,i));
+		}else{
+			i=sLocale.indexOf('_');
+			if (i>0){
+				return setCurrentLocale(sLocale.substring(0,i));
+			}else{
+				if (locales.length>0){
+					setCurrentLocale(locales[0]);
+				}
+			}
+		}
+	}
 }
 
 function isLocalized(){
