@@ -14,7 +14,7 @@ function currentLocale(){
 }
 
 function	setCurrentLocale(sLocale){
-	if (locales[sLocale])
+	if (locales.indexOf(sLocale)>=0)
 		locale=sLocale;
 	else{
 		let i=sLocale.indexOf('-');
