@@ -113,7 +113,7 @@ var prototype_mongoose=function(mongoose_instance,_currentLocale,_locales){
 						}).set(function(value,virtual){
 							var l=currentLocale();
 							if (l)
-								this.set((prefix?prefix:'')+key+'.'+l,value);
+								this.set(vpath+'.'+l,value);
 						});
 				}else{
 					ret[key]=Object.assign({},field);
